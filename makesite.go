@@ -41,9 +41,9 @@ func renderTemplate(tPath, textData, fileName string) {
 		panic(err)
 	}
 
-	rawName := fileName[0:strings.Index(fileName, ".")]
+	originName := fileName[0:strings.Index(fileName, ".")]
 
-	err = t.Execute(f, post{textData, rawName})
+	err = t.Execute(f, post{textData, originName})
 	if err != nil {
 		panic(err)
 	}
