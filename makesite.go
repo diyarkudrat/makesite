@@ -3,23 +3,22 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"html/template"
+	"io/ioutil"
 )
 
 type post struct {
-	User string
+	User    string
 	Content string
 }
 
 func main() {
 
-
 }
 
 func renderTemplate(content string) string {
 	paths := []string{
-		"template.tmpl",
+		"templates/template.tmpl",
 	}
 
 	temp := new(bytes.Buffer)
@@ -41,4 +40,10 @@ func readFile() string {
 
 	fmt.Println(string(fileContents))
 	return string(fileContents)
+}
+
+func WriteFile(tmpl []byte, file string) {
+	if err := ioutil.WriteFile("exports/"+file, tmpl, 0666); err != nil {
+		panic(err)
+	}
 }
