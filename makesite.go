@@ -1,10 +1,12 @@
 package main
 
 import (
-	"bytes"
+	"flag"
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"os"
+	"strings"
 )
 
 type post struct {
@@ -14,36 +16,48 @@ type post struct {
 
 func main() {
 
+	fileFlag := flag.String("file", "first-post.txt", "define input text")
+	flag.Parse()
+	var fileName string = *fileFlag
+	fileName = fileName[0:strings.Index(*fileFlag, ".")] + ".html"
+
+	var fileData string = readFile(*fileFlag)
+	renderTemplate("template.tmpl", fileData, fileName)
+
 }
 
-func renderTemplate(content string) string {
+func renderTemplate(tPath, textData, fileName string) {
 	paths := []string{
-		"templates/template.tmpl",
+		tPath,
 	}
 
-	temp := new(bytes.Buffer)
-	t := template.Must(template.New("template.tmpl").ParseFiles(paths...))
-
-	err := t.Execute(temp, post{User: "Diyar", Content: content})
+	f, err := os.Create(fileName)
 	if err != nil {
 		panic(err)
 	}
 
-	return temp.String()
+	t, err := template.New(tPath).ParseFiles(paths...)
+	if err != nil {
+		panic(err)
+	}
+
+	rawName := fileName[0:strings.Index(fileName, ".")]
+
+	err = t.Execute(f, post{textData, rawName})
+	if err != nil {
+		panic(err)
+	}
+
+	f.Close()
+
 }
 
-func readFile() string {
-	fileContents, err := ioutil.ReadFile("first-post.txt")
+func readFile(fileName string) string {
+	fileContents, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println(string(fileContents))
 	return string(fileContents)
-}
-
-func WriteFile(tmpl []byte, file string) {
-	if err := ioutil.WriteFile("exports/"+file, tmpl, 0666); err != nil {
-		panic(err)
-	}
 }
