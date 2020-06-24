@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-type post struct {
-	User    string
+type pageData struct {
 	Content string
+	Title   string
 }
 
 func main() {
@@ -81,7 +81,7 @@ func renderTemplate(tPath, textData, fileName string) {
 
 	originName := fileName[0:strings.Index(fileName, ".")]
 
-	err = t.Execute(f, post{textData, originName})
+	err = t.Execute(f, pageData{textData, originName})
 	if err != nil {
 		panic(err)
 	}
