@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"html/template"
 	"io/ioutil"
 	"os"
@@ -17,12 +16,14 @@ type post struct {
 func main() {
 
 	fileFlag := flag.String("file", "first-post.txt", "define input text")
-	dirFlag := flag.String("directory", "None", "generates all .txt files in directory")
+	dirFlag := flag.String("directory", "none", "generates all .txt files in directory")
 	outputDirFlag := flag.String("output", "templates/", "Generator output directory")
 	flag.Parse()
 
-	if *dirFlag == "None" {
-		runForFile(*fileFlag, "txt_dir/")
+	if *dirFlag == "none" {
+		runFile(*fileFlag, "txt_dir/")
+	} else {
+		runDir(*dirFlag, *outputDirFlag)
 	}
 
 }
@@ -41,12 +42,34 @@ func runFile(fileFlag, directory string) {
 	renderTemplate("template.tmpl", data, fileName)
 }
 
+func runDir(directory, output string) {
+
+	if directory[len(directory)-1] != "/"[0] {
+		directory += "/"
+	}
+
+	files, err := ioutil.ReadDir(directory)
+
+	if err != nil {
+		panic(err)
+	}
+
+	for _, file := range files {
+
+		if file.IsDir() == false {
+			runFile(file.Name(), directory)
+		} else {
+			runDir(directory+"/"+file.Name(), output)
+		}
+	}
+}
+
 func renderTemplate(tPath, textData, fileName string) {
 	paths := []string{
 		tPath,
 	}
 
-	f, err := os.Create(fileName)
+	f, err := os.Create("templates/" + fileName)
 	if err != nil {
 		panic(err)
 	}
@@ -73,6 +96,6 @@ func readFile(fileName string) string {
 		panic(err)
 	}
 
-	fmt.Println(string(fileContents))
+	// fmt.Println(string(fileContents))
 	return string(fileContents)
 }
