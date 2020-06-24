@@ -17,13 +17,28 @@ type post struct {
 func main() {
 
 	fileFlag := flag.String("file", "first-post.txt", "define input text")
+	dirFlag := flag.String("directory", "None", "generates all .txt files in directory")
+	outputDirFlag := flag.String("output", "templates/", "Generator output directory")
 	flag.Parse()
-	var fileName string = *fileFlag
-	fileName = fileName[0:strings.Index(*fileFlag, ".")] + ".html"
 
-	var fileData string = readFile(*fileFlag)
-	renderTemplate("template.tmpl", fileData, fileName)
+	if *dirFlag == "None" {
+		runForFile(*fileFlag, "txt_dir/")
+	}
 
+}
+
+func runFile(fileFlag, directory string) {
+
+	var fileName string = fileFlag
+
+	if fileName[strings.Index(fileFlag, "."):len(fileFlag)] != ".txt" {
+		return
+	}
+
+	fileName = fileName[0:strings.Index(fileFlag, ".")] + ".html"
+
+	var data string = readFile(directory + fileFlag)
+	renderTemplate("template.tmpl", data, fileName)
 }
 
 func renderTemplate(tPath, textData, fileName string) {
