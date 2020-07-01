@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 type pageData struct {
@@ -33,6 +35,15 @@ func runFile(fileFlag, directory string) {
 	var fileName string = fileFlag
 
 	if fileName[strings.Index(fileFlag, "."):len(fileFlag)] != ".txt" {
+		return
+	}
+
+	if strings.Contains(strings.ToLower(fileFlag), ".md") {
+
+		tmpl := renderTemplate(fileFlag)
+		output := blackfriday.Run(tmpl)
+		utils.WriteFile(output, fileFlag)
+
 		return
 	}
 
