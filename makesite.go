@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/bregydoc/gtranslate"
+	"golang.org/x/text/language"
 	"gopkg.in/russross/blackfriday.v2"
 )
 
@@ -40,9 +42,10 @@ func runFile(fileFlag, directory string) {
 
 	if strings.Contains(strings.ToLower(fileFlag), ".md") {
 
-		tmpl := renderTemplate(fileFlag)
+		var data string = readFile(directory + fileFlag)
+		tmpl := renderTemplate("template.tmpl", data, fileName)
 		output := blackfriday.Run(tmpl)
-		utils.WriteFile(output, fileFlag)
+		ioutil.WriteFile(output, fileFlag)
 
 		return
 	}
@@ -92,13 +95,27 @@ func renderTemplate(tPath, textData, fileName string) {
 
 	originName := fileName[0:strings.Index(fileName, ".")]
 
-	err = t.Execute(f, pageData{textData, originName})
+	txtTranslated := translateText(textData)
+
+	err = t.Execute(f, pageData{txtTranslated, originName})
 	if err != nil {
 		panic(err)
 	}
 
 	f.Close()
 
+}
+
+func translateText(txtData string) string {
+
+	translated, err := gtranslate.Translate(txtData, language.English, language.Spanish)
+	if err != nil {
+		panic(err)
+	}
+
+	// fmt.Printf("en: %s | ja: %s \n", txtData, translated)
+	// en: Hello World | ja: こんにちは世界
+	return string(translated)
 }
 
 func readFile(fileName string) string {
